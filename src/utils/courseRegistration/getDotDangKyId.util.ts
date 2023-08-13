@@ -1,4 +1,4 @@
-import { courseRegistrationInstance } from "../../configs/axios/index";
+import { vluteInstance } from "../../configs/axios/index";
 import dotenv from "dotenv";
 import { success } from "./cliColor/cliColor.util";
 import readline from "../../class/Readline.class";
@@ -9,15 +9,14 @@ import {
 
 dotenv.config();
 
-export default async function getDotDangKyId() {
-    if (dotDangKyId) return dotDangKyId;
+export default async function getDotDangKyId(): Promise<number> {
+    if (dotDangKyId) return Promise.resolve(dotDangKyId);
 
     const formData = new FormData();
-
     formData.append("hocKyId", process.env.HOC_KY_ID as string);
 
-    return courseRegistrationInstance
-        .post("dkmhTKBDotDKList.action", formData)
+    return vluteInstance
+        .post("/hocvien/dkmhTKBDotDKList.action", formData)
         .then(async ({ data }) => {
             let html = data as string;
 
@@ -54,12 +53,12 @@ export default async function getDotDangKyId() {
 
             console.log(
                 success(
-                    `➥ Bạn đã chọn "${dotDangKyTitleList[dotDangKyIdSelectIndex]}"`
+                    `➡ Bạn đã chọn "${dotDangKyTitleList[dotDangKyIdSelectIndex]}"`
                 )
             );
 
             setDotDangKyId(dotDangKyIdList[dotDangKyIdSelectIndex]);
 
-            return dotDangKyId;
+            return dotDangKyIdList[dotDangKyIdSelectIndex];
         });
 }

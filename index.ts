@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
-import { courseRegistration } from "./src/utils/courseRegistration";
 import cliColor from "cli-color";
-import Login from "./src/class/Login.class";
+import login from "./src/class/Login.class";
 import {
     success,
     error,
 } from "./src/utils/courseRegistration/cliColor/cliColor.util";
+import Course from "./src/class/Course.class";
 
 dotenv.config();
 
@@ -15,13 +15,11 @@ console.log(
 );
 
 (async () => {
-    // Handle login
-    const login = new Login();
-
     do {
+        // Handle login
+        login.showTitle();
         await login.inputUsernameAndPassword();
         await login.handleLogin();
-        login.updateAxiosInstanceCookie();
 
         if (login.getLoginResult()) {
             console.log(success("Đăng nhập thành công!"));
@@ -30,7 +28,8 @@ console.log(
         }
     } while (!login.getLoginResult());
 
-    const result = await courseRegistration({
-        lopMonHocId: 65241,
-    });
+    const course = new Course();
+    course.loadCourseListFromExcel();
+    await course.loadCourseDetailInfo();
+    await course.regisCourse();
 })();

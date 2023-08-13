@@ -1,48 +1,51 @@
-import axios from "axios";
 import clc from "cli-color";
-import { courseRegistrationInstance } from "../configs/axios/index";
+import { vluteInstance } from "../configs/axios";
+import { getDotDangKyId } from "../utils/courseRegistration";
 import readline from "./Readline.class";
 
-export default class Login {
+class Login {
     public result = false;
     private username?: string;
     private password?: string;
-    private sessionId?: string = undefined;
 
-    public constructor() {
+    public constructor() {}
+
+    public showTitle() {
         console.log(clc.cyan("Vui lòng đăng nhập trước khi đăng ký học phần"));
     }
 
-    public async handleLogin(): Promise<void> {
+    public async handleLogin(): Promise<boolean> {
         const loginForm = new FormData();
 
         loginForm.append("username", this.username || "");
         loginForm.append("password", this.password || "");
 
-        return axios
-            .post("https://qldt.vlute.edu.vn/VLUTE-Web/login.action", loginForm)
-            .then((data) => {
-                const responseUrl = data.request?.res?.responseUrl as
-                    | string
-                    | undefined;
+        await vluteInstance.post(
+            "login.action",
+            loginForm
+        )
 
-                if (responseUrl?.includes("jsessionid=")) {
-                    this.result = true;
-                    this.sessionId = responseUrl.split("jsessionid=").at(-1);
-                }
-            });
-    }
+        const checkPermissionForm = new FormData();
+        const dotDangKyId = await getDotDangKyId();
+        checkPermissionForm.append("dotDKId", dotDangKyId.toString());
 
-    public updateAxiosInstanceCookie() {
-        courseRegistrationInstance.defaults.headers.common.Cookie = `JSESSIONID=${this.sessionId}`;
+        return vluteInstance
+            .post("/hocvien/kiemTraQuyenDangKy.action", checkPermissionForm)
+            .then(({ data }) => (this.result = data.code === "SUCCESS"));
     }
 
     public async inputUsernameAndPassword() {
-        this.username = await readline.input("Tên đăng nhập: ");
-        this.password = await readline.input("Mật khẩu: ");
+        this.username =
+            process.env.VLUTE_USERNAME ||
+            (await readline.input("Tên đăng nhập: "));
+        this.password =
+            process.env.VLUTE_PASSWORD || (await readline.input("Mật khẩu: "));
     }
 
     public getLoginResult() {
         return this.result;
     }
 }
+
+const login = new Login();
+export default login;

@@ -1,15 +1,13 @@
-interface CourseLearningTime {
+export interface CourseLearningTime {
     dayOfWeek: number;
     lessonStart: number;
     lessonEnd: number;
 }
 
-interface Course {
+export interface Course {
     id: number;
     practiceId?: number;
     code: string;
-    name: string;
+    courseName: string;
     creditCount: number;
-    teacher: string;
-    learningTime: CourseLearningTime[];
 }

@@ -1,7 +1,6 @@
-import { courseRegistrationInstance } from "../../configs/axios";
+import { vluteInstance } from "../../configs/axios";
 import FormData from "form-data";
 import dotenv from "dotenv";
-import { dotDangKyId as dotDangKyIdConfig } from "../../configs/course/coursesRegistrationInfo.config";
 import getDotDangKyId from "./getDotDangKyId.util";
 
 dotenv.config();
@@ -16,20 +15,15 @@ export default async function courseRegistration({
     lopMonHocKemId,
 }: CourseRegistration) {
     const formData = new FormData();
-    const dotDangKyId = dotDangKyIdConfig || (await getDotDangKyId());
+    const dotDangKyId = await getDotDangKyId();
 
     formData.append("lopMonHocId", lopMonHocId.toString());
     formData.append("lopMonHocKemId", (lopMonHocKemId || -1).toString());
     formData.append("hocKyId", process.env.HOC_KY_ID as string);
     formData.append("dotDKId", dotDangKyId);
 
-    return courseRegistrationInstance
-        .post("ketQuaDangKyLopMonHocInsert.action", formData)
-        .then((res) => {
-            // console.log(res.data);
-
-            return res;
-        })
+    return vluteInstance
+        .post("/hocvien/ketQuaDangKyLopMonHocInsert.action", formData)
         .then(({ data }) => data.at(0)?.objs?.at(1) === "true")
-        .catch((err) => console.error("Error: ", err));
+        .catch(() => false);
 }
