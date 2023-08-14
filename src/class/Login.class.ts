@@ -1,7 +1,7 @@
 import clc from "cli-color";
 import { vluteInstance } from "../configs/axios";
 import { getDotDangKyId } from "../utils/courseRegistration";
-import readline from "./Readline.class";
+import { promptSync } from "../configs/prompt";
 
 class Login {
     public result = false;
@@ -20,10 +20,7 @@ class Login {
         loginForm.append("username", this.username || "");
         loginForm.append("password", this.password || "");
 
-        await vluteInstance.post(
-            "login.action",
-            loginForm
-        )
+        await vluteInstance.post("login.action", loginForm);
 
         const checkPermissionForm = new FormData();
         const dotDangKyId = await getDotDangKyId();
@@ -35,11 +32,10 @@ class Login {
     }
 
     public async inputUsernameAndPassword() {
-        this.username =
-            process.env.VLUTE_USERNAME ||
-            (await readline.input("Tên đăng nhập: "));
-        this.password =
-            process.env.VLUTE_PASSWORD || (await readline.input("Mật khẩu: "));
+        this.username = promptSync("Tên đăng nhập: ");
+        this.password = promptSync("Mật khẩu: ", {
+            echo: "*",
+        });
     }
 
     public getLoginResult() {

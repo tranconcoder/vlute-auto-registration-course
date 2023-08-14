@@ -1,11 +1,11 @@
 import { vluteInstance } from "../../configs/axios/index";
 import dotenv from "dotenv";
 import { success } from "./cliColor/cliColor.util";
-import readline from "../../class/Readline.class";
 import {
     dotDangKyId,
     setDotDangKyId,
 } from "../../configs/course/coursesRegistrationInfo.config";
+import {promptSync} from "../../configs/prompt";
 
 dotenv.config();
 
@@ -43,7 +43,7 @@ export default async function getDotDangKyId(): Promise<number> {
 
             do {
                 dotDangKyIdSelectIndex =
-                    Number(await readline.input("Nhập lựa chọn của bạn: ")) - 1;
+                    Number(promptSync("Nhập lựa chọn của bạn: ")) - 1;
 
                 // Select values: 1 -> length
             } while (

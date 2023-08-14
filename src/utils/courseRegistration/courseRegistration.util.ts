@@ -1,7 +1,7 @@
 import { vluteInstance } from "../../configs/axios";
 import FormData from "form-data";
 import dotenv from "dotenv";
-import getDotDangKyId from "./getDotDangKyId.util";
+import { getDotDangKyId } from ".";
 
 dotenv.config();
 

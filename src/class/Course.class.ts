@@ -8,7 +8,7 @@ import {
 } from "../utils/courseRegistration";
 import { vluteInstance } from "../configs/axios";
 import { AxiosResponse } from "axios";
-import { error } from "../utils/courseRegistration/cliColor";
+import { error, success } from "../utils/courseRegistration/cliColor";
 
 export default class Course {
     private courseCodeList: [string, string | undefined][] = [];
@@ -29,7 +29,7 @@ export default class Course {
 
         courseData.map(({ B, C }) => {
             if (B) {
-                this.courseCodeList.push([B.toString(), C || ""]);
+                this.courseCodeList.push([B.trim(), C.trim() || undefined]);
             }
         });
     }
@@ -139,22 +139,50 @@ export default class Course {
                 this.errorList = [];
             }
 
+            const regisStatusPromiseList: Array<Promise<boolean>> = [];
+
             for (const course of this.courseList) {
-                const regisStatus = await courseRegistration({
-                    lopMonHocId: course.id,
-                    lopMonHocKemId: course.practiceId,
-                });
-
-                if (!regisStatus) this.errorList.push(course);
-            }
-
-            for (const courseError of this.errorList) {
-                console.log(
-                    error(
-                        `Đăng ký học phần thất bại: ${courseError.courseName}`
-                    )
+                regisStatusPromiseList.push(
+                    courseRegistration({
+                        lopMonHocId: course.id,
+                        lopMonHocKemId: course.practiceId,
+                    })
                 );
             }
+
+            await Promise.all(regisStatusPromiseList).then(
+                ([...regisStatusList]) => {
+                    for (let index in regisStatusList) {
+                        const regisStatus = regisStatusList[index];
+
+                        if (!regisStatus) {
+                            this.errorList.push(this.courseList[index]);
+                        }
+                    }
+                }
+            );
+
+            // Show error
+            if (this.errorList.length) {
+                console.log(error(`Đăng ký học phần thất bại:`));
+
+                for (const courseError of this.errorList) {
+                    console.log(
+                        error(`\t+ ${courseError.courseName}`, { icon: false })
+                    );
+                }
+            }
+
+            // Show success registration
+            const errorIdList = this.errorList.map((error) => error.id);
+            const successCourseList = this.courseList.filter(
+                (course) => !errorIdList.includes(course.id)
+            );
+            successCourseList.forEach((course) => {
+                console.log(
+                    success(`Đăng ký thành công: ${course.courseName}`)
+                );
+            });
         } while (this.errorList.length);
     }
 }
