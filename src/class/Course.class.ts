@@ -29,7 +29,7 @@ export default class Course {
 
         courseData.map(({ B, C }) => {
             if (B) {
-                this.courseCodeList.push([B.trim(), C.trim() || undefined]);
+                this.courseCodeList.push([B.trim(), C?.trim() || undefined]);
             }
         });
     }
@@ -102,34 +102,44 @@ export default class Course {
                             ?.match(/>(.*?)<\/td>/i)
                             ?.at(1)
                     );
+
+                    const idHtml = columnListHtml.pop();
                     const id = Number(
-                        columnListHtml
-                            .pop()
-                            ?.match(/dangKyMonHocKemForm\((.*?)\)/i)
+                        idHtml
+                            ?.match(/dangKyMonHocInsert\((.*?)\)/i)
                             ?.at(1)
                             ?.split(",")
                             ?.at(3)
                     );
+
                     const practiceId = attachData
                         ? Number(
                               (attachData as string)
-                                  ?.match(/dangKyMonHocKemForm\((.*?)\)/i)
+                                  ?.match(/dangKyMonHocInsert\((.*?)\)/i)
                                   ?.at(1)
                                   ?.split(",")
                                   ?.at(3)
                           )
                         : -1;
 
-                    this.courseList.push({
-                        id,
-                        practiceId,
-                        code,
-                        courseName,
-                        creditCount,
-                    });
+                    if (idHtml?.includes("Đăng ký thành công")) {
+                        console.log(
+                            success(`Đã đăng ký từ trước: ${courseName}`)
+                        );
+                    }else {
+                        this.courseList.push({
+                            id,
+                            practiceId,
+                            code,
+                            courseName,
+                            creditCount,
+                        });
+                    }
                 });
             }
         });
+
+        console.log(this.courseList);
     }
 
     public async regisCourse() {
