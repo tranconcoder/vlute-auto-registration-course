@@ -104,29 +104,40 @@ export default class Course {
                     );
 
                     const idHtml = columnListHtml.pop();
-                    const id = Number(
-                        idHtml
-                            ?.match(/dangKyMonHocInsert\((.*?)\)/i)
-                            ?.at(1)
-                            ?.split(",")
-                            ?.at(3)
-                    );
-
-                    const practiceId = attachData
-                        ? Number(
-                              (attachData as string)
-                                  ?.match(/dangKyMonHocInsert\((.*?)\)/i)
-                                  ?.at(1)
-                                  ?.split(",")
-                                  ?.at(3)
-                          )
-                        : -1;
+                    let id: number;
+                    let practiceId: number = -1;
+                    if (idHtml?.includes("dangKyMonHocKemForm(this")) {
+                        id = Number(
+                            idHtml
+                                ?.match(/dangKyMonHocKemForm\((.*?)\)/i)
+                                ?.at(1)
+                                ?.split(",")
+                                ?.at(3)
+                        );
+                        practiceId = attachData
+                            ? Number(
+                                  (attachData as string)
+                                      ?.match(/dangKyMonHocKemForm\((.*?)\)/i)
+                                      ?.at(1)
+                                      ?.split(",")
+                                      ?.at(3)
+                              )
+                            : -1;
+                    } else {
+                        id = Number(
+                            idHtml
+                                ?.match(/dangKyMonHocInsert\((.*?)\)/i)
+                                ?.at(1)
+                                ?.split(",")
+                                ?.at(3)
+                        );
+                    }
 
                     if (idHtml?.includes("Đăng ký thành công")) {
                         console.log(
                             success(`Đã đăng ký từ trước: ${courseName}`)
                         );
-                    }else {
+                    } else {
                         this.courseList.push({
                             id,
                             practiceId,
@@ -138,8 +149,6 @@ export default class Course {
                 });
             }
         });
-
-        console.log(this.courseList);
     }
 
     public async regisCourse() {

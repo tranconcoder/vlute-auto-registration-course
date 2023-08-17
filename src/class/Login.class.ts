@@ -32,10 +32,12 @@ class Login {
     }
 
     public async inputUsernameAndPassword() {
-        this.username = promptSync("Tên đăng nhập: ");
-        this.password = promptSync("Mật khẩu: ", {
-            echo: "*",
-        });
+        this.username = process.env.VLUTE_USERNAME || promptSync("Tên đăng nhập: ");
+        this.password =
+            process.env.VLUTE_PASSWORD ||
+            promptSync("Mật khẩu: ", {
+                echo: "*",
+            });
     }
 
     public getLoginResult() {
