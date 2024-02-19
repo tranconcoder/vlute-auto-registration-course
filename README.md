@@ -1,0 +1,1 @@
+# vlute-auto-registration-course
