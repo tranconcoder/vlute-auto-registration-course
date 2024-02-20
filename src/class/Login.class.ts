@@ -2,6 +2,7 @@ import clc from "cli-color";
 import { vluteInstance } from "../configs/axios";
 import { getDotDangKyId } from "../utils/courseRegistration";
 import { promptSync } from "../configs/prompt";
+import { error as errorLog } from "../utils/courseRegistration/cliColor";
 
 class Login {
     public result = false;
@@ -20,7 +21,16 @@ class Login {
         loginForm.append("username", this.username || "");
         loginForm.append("password", this.password || "");
 
-        await vluteInstance.post("login.action", loginForm);
+        let error = true;
+        do {
+            try {
+                await vluteInstance.post("login.action", loginForm);
+                error = false;
+            } catch (err) {
+                console.log(errorLog("Đăng nhập thất lại, đang thử lại..."));
+                error = true;
+            }
+        } while (error);
 
         const checkPermissionForm = new FormData();
         const dotDangKyId = await getDotDangKyId();
@@ -32,7 +42,8 @@ class Login {
     }
 
     public async inputUsernameAndPassword() {
-        this.username = process.env.VLUTE_USERNAME || promptSync("Tên đăng nhập: ");
+        this.username =
+            process.env.VLUTE_USERNAME || promptSync("Tên đăng nhập: ");
         this.password =
             process.env.VLUTE_PASSWORD ||
             promptSync("Mật khẩu: ", {

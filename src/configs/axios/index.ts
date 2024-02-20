@@ -17,10 +17,11 @@ const vluteInstance = wrapper(
     })
 );
 
+/*
 vluteInstance.interceptors.response.use(
     (res) => res,
     async (error: AxiosError) => {
-        console.log(1111111111)
+        console.log(1111111111);
         // Remake the request
         const method = error.response?.config.method || "get";
         const url = error.request.responseURL;
@@ -29,5 +30,6 @@ vluteInstance.interceptors.response.use(
         return Promise.resolve((vluteInstance as any)[method](url, option));
     }
 );
+*/
 
 export { vluteInstance };
